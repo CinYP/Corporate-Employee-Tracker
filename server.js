@@ -2,7 +2,8 @@
 //import mysql
 const mysql = require('mysql2');
 //import inquirer
-import inquirer from 'inquirer';
+//import inquirer from 'inquirer';
+const inquirer = require('inquirer'); 
 //import internal connection 
 //const connection = require('./db/connection');
 //import console.table
@@ -10,8 +11,8 @@ const cTable = require('console.table');
 
 
 const connection = mysql.createConnection({
-    host: 'localhost',
-    port: 3001, 
+    host: '127.0.0.1',
+    port: 3306, 
     user: 'root',
     database: 'employee_db',
     password: '' 
@@ -22,15 +23,15 @@ connection.connect((err)=>{
     if (err) {
         console.log(err)
         console.log('Something went wrong.')
-    } connection();
+    } welcomeMessage();
 });
 
 
-connection = () => {
+const welcomeMessage = () => {
     console.log('=================================')
     console.log('|| EMPLOYEE MANAGER STARTED    ||')
     console.log('=================================')
-    //nextfunction here
+    startApp(); 
 };
 
 const startApp = () => {
@@ -63,42 +64,46 @@ const startApp = () => {
         if (choices === 'View all departments'){
             showDepartments();
         }
-    //     if (choices === 'View all roles'){
-    //         //call function; 
-    //     }
-    //     if (choices === 'View all employees'){
-    //         //call function; 
-    //     }
-    //     if (choices === 'Add a department'){
-    //         //call function; 
-    //     }
-    //     if (choices === 'Add a role'){
-    //         //call function; 
-    //     }
-    //     if (choices === 'Add an Employee'){
-    //         //call function; 
-    //     }
-    //     if (choices === 'Update an employee role'){
-    //         //call function; 
-    //     }
-    //     if (choices === 'Update an employee manager'){
-    //         //call function; 
-    //     }
-    //     if (choices === 'Delete a department'){
-    //         //call function; 
-    //     }
-    //     if (choices === 'Delete a role'){
-    //         //call function; 
-    //     }
-    //     if (choices === 'Delete an employee'){
-    //         //call function; 
-    //     }
-    //     if (choices === 'View department budgets'){
-    //         //call function; 
-    //     }
-    //     else {
-    //         //call function to end the application 
-    //     }
+        if (choices === 'View all roles'){
+            showRoles();
+        }
+        if (choices === 'View all employees'){
+            showEmployees(); 
+        }
+        if (choices === 'Add a department'){
+            addDepartment(); 
+        }
+        if (choices === 'Add a role'){
+            addRole();
+        }
+        if (choices === 'Add an Employee'){
+            addEmployee(); 
+        }
+        if (choices === 'Update an employee role'){
+            updateEmployee(); 
+        }
+        if (choices === 'Update an employee manager'){
+            updateManager(); 
+        }
+        if (choices === 'Delete a department'){ 
+            deleteDepartment(); 
+        }
+        if (choices === 'View all employees by department'){
+            showEmployeeDepartment();  
+        }
+        if (choices === 'Delete a role'){
+          
+            deleteRole(); 
+        }
+        if (choices === 'Delete an employee'){
+            viewBudget();
+        }
+        if (choices === 'View department budgets'){
+            deleteEmployee(); 
+        }
+        else {
+            //call function to end the application 
+        }
     
     });
 
@@ -108,13 +113,65 @@ showDepartments = () => {
     console.log('...Showing all Departments...');
         if (err) throw err;
         //Select department names and department id from departments table 
-        connection.query('SELECT * FROM department' , function (err,rows) {
+        connection.query('SELECT department.id AS id, department.name as department FROM department', 
+        
+        function (err,rows) {
           if (err) throw err;
           console.table(rows);
         //restarting prompt from user
         startApp(); 
         });
     };
+
+    showRoles = () => {
+        console.log('...Showing all roles...');
+    };
+
+    showEmployees =() => {
+        console.log('...');
+    };
+
+    addDepartment = () => {
+        console.log('...');
+    };
+
+    addRole = () => {
+        console.log('...');
+    };
+
+    addEmployee = () => {
+        console.log('...');
+    };
+
+    updateEmployee = () => {
+        console.log('...');
+    };
+
+    updateManager = () => {
+        console.log('...');
+    };
+
+    showEmployeeDepartment = () => {
+        console.log('...');
+    };
+
+    deleteDepartment = () => {
+        console.log('...');
+    };
+
+    deleteRole = () => {
+        console.log('...');
+    };
+
+    deleteEmployee = () => {
+        console.log('...');
+    };
+
+    viewBudget = () => {
+        console.log('...');
+    };
+
+
     
 
 // // simple query
