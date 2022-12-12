@@ -72,6 +72,12 @@ const startApp = () => {
         if (choices === 'View all employees'){
             showEmployees(); 
         }
+         if (choices === 'View all employees by department'){
+            showEmployeeDepartment();  
+        }
+        if (choices === 'View department budgets'){
+            deleteEmployee(); 
+        }
         if (choices === 'Add a department'){
             addDepartment(); 
         }
@@ -90,18 +96,12 @@ const startApp = () => {
         if (choices === 'Delete a department'){ 
             deleteDepartment(); 
         }
-        if (choices === 'View all employees by department'){
-            showEmployeeDepartment();  
-        }
         if (choices === 'Delete a role'){
           
             deleteRole(); 
         }
         if (choices === 'Delete an employee'){
             viewBudget();
-        }
-        if (choices === 'View department budgets'){
-            deleteEmployee(); 
         }
         else {
             endApplication();
@@ -149,6 +149,18 @@ showDepartments = () => {
         });
     };
 
+    //come back to this
+    showEmployeeDepartment = () => {
+        console.log('...Showing all Employees...');
+        connection.query(`SELECT employee.first_name, employee.last_name AS employee FROM employee`, 
+        function (err,rows) {
+          if (err) throw err;
+          console.table(rows);
+        //restarting prompt from user
+        startApp(); 
+        }); 
+    }
+
     addDepartment = () => {
         inquirer.prompt([
             {
@@ -165,22 +177,112 @@ showDepartments = () => {
                 }
             }
         ]).then(answer =>{
-            connection.query('INSERT INTO department (name) VALUES (?)'), 
+            connection.query(`INSERT INTO department (name) VALUES ('${answer.addDepartment}')`),
             function (err,rows) {
-                if (err) throw err;
-                console.table(rows);
-                console.log(`Added ${answer.addDepartment} to Deparment database.`);
-                showDepartments()
-            }
+                if (err) throw err;  
+            }  
+            console.table(rows);
+            console.log(`Added ${answer.addDepartment} to Deparment database.`);
+         showDepartments()
         })
     };
 
+//come back to this - you have a syntax error 
     addRole = () => {
-        console.log('...');
+        console.log('....Add Role....');
+        inquirer.prompt([
+            {
+                type: 'input', 
+                name: 'addRole', 
+                message: 'What role would you like to add?', 
+                validate: (addRole) => {
+                    if (addRole) {
+                        return true; 
+                    } else {
+                        console.log('Please enter a valid role.');
+                        return false;
+                    }
+                }
+            },
+            {
+                type: 'input', 
+                name: 'salary', 
+                default: 50000, 
+                message: 'What is the salary for this role?', 
+                validate: (salary) => {
+                    if (salary) {
+                        return true; 
+                    } else {
+                        console.log('Please enter a valid salary.');
+                        return false;
+                    }
+                }
+            },
+            {
+                type: 'input', 
+                name: 'departmentID', 
+                default: 1, 
+                message: 'What is the department ID for this role?', 
+                validate: (departmentID) => {
+                    if (departmentID) {
+                        return true; 
+                    } else {
+                        console.log('Please enter a valid role.');
+                        return false;
+                    }
+                }
+            }
+        ]).then(answer =>{
+            const roleParameters = [answer.role, answer.salary, answer.departmentID]
+            
+            connection.query(`INSERT INTO role (title, salary, department_id) VALUES (${answer.addRole},${answer.salary},${answer.departmentID}) `),
+            function (err,rows) {
+                if (err) throw err;
+                 console.table(rows)
+                 console.log(`Added ${answer.addRole} to role database.`)
+                 showRoles()
+            }  
+        })
     };
 
     addEmployee = () => {
-        console.log('...');
+        console.log('....Adding an Employee');
+        inquirer.prompt([
+           { type: 'input',
+           name: 'first_name',
+           message: 'What is the first name of the employee?',
+        //    validate: (addFirstName) => {
+        //     if (addFirstName) {
+        //         return true; 
+        //     } else {
+        //         console.log('Please enter a valid role.');
+        //         return false;
+        //     }}
+           },
+           { type: 'input',
+           name: 'first_last',
+           message: 'What is the last name of the employee?',
+        //    validate: (addLastName) => {
+        //     if (addLastName) {
+        //         return true; 
+        //     } else {
+        //         console.log('Please enter a valid role.');
+        //         return false;
+        //     }}
+           },
+           { type: 'list',
+           name: 'first_last',
+           message: `What is the employee's role?`,
+           choices: roles, 
+           },
+           { type: 'list',
+           name: 'first_last',
+           message: `Who is the employee's manager?`,
+           choices: managers, 
+           },
+        ]) .then( answer => {
+
+        })
     };
 
     updateEmployee = () => {
@@ -213,9 +315,9 @@ showDepartments = () => {
 
     endApplication = () => {
         console.log('===========================');
-        console.log('........Thank You .........')
-        console.log('===========================')
-        console.log(' Powered by Cinthia Pruitt')
+        // console.log('........Thank You .........')
+        // console.log('===========================')
+        // console.log(' Powered by Cinthia Pruitt')
     };
     
 
