@@ -150,7 +150,29 @@ showDepartments = () => {
     };
 
     addDepartment = () => {
-        console.log('...');
+        inquirer.prompt([
+            {
+                type: 'input', 
+                name: 'addDepartment', 
+                message: 'What department would you like to add?', 
+                validate: (addDepartment) => {
+                    if (addDepartment) {
+                        return true; 
+                    } else {
+                        console.log('Please enter a valid department name');
+                        return false;
+                    }
+                }
+            }
+        ]).then(answer =>{
+            connection.query('INSERT INTO department (name) VALUES (?)'), 
+            function (err,rows) {
+                if (err) throw err;
+                console.table(rows);
+                console.log(`Added ${answer.addDepartment} to Deparment database.`);
+                showDepartments()
+            }
+        })
     };
 
     addRole = () => {
