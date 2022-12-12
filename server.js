@@ -1,11 +1,13 @@
 //________ modules _________
 //import mysql
 const mysql = require('mysql2');
+
 //import inquirer
-//import inquirer from 'inquirer';
 const inquirer = require('inquirer'); 
+
 //import internal connection 
 //const connection = require('./db/connection');
+
 //import console.table
 const cTable = require('console.table'); 
 
@@ -15,7 +17,7 @@ const connection = mysql.createConnection({
     port: 3306, 
     user: 'root',
     database: 'employee_db',
-    password: '' 
+    password: 'Lily_ivy' 
 });
 
 //Connection ID
@@ -35,7 +37,7 @@ const welcomeMessage = () => {
 };
 
 const startApp = () => {
-    inquirer.promp([
+    inquirer.prompt([
         {
             type:'list',
             name:'choices', 
@@ -102,7 +104,7 @@ const startApp = () => {
             deleteEmployee(); 
         }
         else {
-            //call function to end the application 
+            endApplication();
         }
     
     });
@@ -111,7 +113,6 @@ const startApp = () => {
 
 showDepartments = () => {
     console.log('...Showing all Departments...');
-        if (err) throw err;
         //Select department names and department id from departments table 
         connection.query('SELECT department.id AS id, department.name as department FROM department', 
         
@@ -125,10 +126,27 @@ showDepartments = () => {
 
     showRoles = () => {
         console.log('...Showing all roles...');
+        //Select roles from mysql 
+        connection.query(`SELECT role.id, role.title, department.name AS department FROM role
+        INNER JOIN department ON role.department_id = department.id`, 
+        
+        function (err,rows) {
+          if (err) throw err;
+          console.table(rows);
+        //restarting prompt from user
+        startApp(); 
+        });
     };
 
     showEmployees =() => {
-        console.log('...');
+        console.log('...Showing all Employees...');
+        connection.query(`SELECT employee.first_name, employee.last_name AS employee FROM employee`, 
+        function (err,rows) {
+          if (err) throw err;
+          console.table(rows);
+        //restarting prompt from user
+        startApp(); 
+        });
     };
 
     addDepartment = () => {
@@ -171,7 +189,12 @@ showDepartments = () => {
         console.log('...');
     };
 
-
+    endApplication = () => {
+        console.log('===========================');
+        console.log('........Thank You .........')
+        console.log('===========================')
+        console.log(' Powered by Cinthia Pruitt')
+    };
     
 
 // // simple query
