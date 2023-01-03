@@ -66,47 +66,46 @@ const startApp = () => {
         if (choices === 'View all departments'){
             showDepartments();
         }
-        if (choices === 'View all roles'){
+        else if (choices === 'View all roles'){
             showRoles();
         }
-        if (choices === 'View all employees'){
+        else if (choices === 'View all employees'){
             showEmployees(); 
         }
-         if (choices === 'View all employees by department'){
+        else if (choices === 'View all employees by department'){
             showEmployeeDepartment();  
         }
-        if (choices === 'View department budgets'){
+        else if (choices === 'View department budgets'){
             deleteEmployee(); 
         }
-        if (choices === 'Add a department'){
+        else if (choices === 'Add a department'){
             addDepartment(); 
         }
-        if (choices === 'Add a role'){
+        else if (choices === 'Add a role'){
             addRole();
         }
-        if (choices === 'Add an Employee'){
+        else if (choices === 'Add an Employee'){
             addEmployee(); 
         }
-        if (choices === 'Update an employee role'){
+        else if (choices === 'Update an employee role'){
             updateEmployee(); 
         }
-        if (choices === 'Update an employee manager'){
+        else if (choices === 'Update an employee manager'){
             updateManager(); 
         }
-        if (choices === 'Delete a department'){ 
+        else if (choices === 'Delete a department'){ 
             deleteDepartment(); 
         }
-        if (choices === 'Delete a role'){
+        else if (choices === 'Delete a role'){
           
             deleteRole(); 
         }
-        if (choices === 'Delete an employee'){
+        else if (choices === 'Delete an employee'){
             viewBudget();
         }
         else {
             endApplication();
         }
-    
     });
 
 };
@@ -131,7 +130,7 @@ showDepartments = () => {
         INNER JOIN department ON role.department_id = department.id`, 
         
         function (err,rows) {
-          if (err) throw err;
+        if (err) throw err;
           console.table(rows);
         //restarting prompt from user
         startApp(); 
@@ -140,7 +139,17 @@ showDepartments = () => {
 
     showEmployees =() => {
         console.log('...Showing all Employees...');
-        connection.query(`SELECT employee.first_name, employee.last_name AS employee FROM employee`, 
+        connection.query(`SELECT employee.id,
+                            employee.first_name,
+                             employee.last_name,
+                             role.title,
+                             department.name AS department,
+                             role.salary,
+                             CONCAT(manager.first_name, ' ', manager.last_name) AS manager,
+                             FROM employee
+                             LEFT JOIN role on employee.role_id = role.id
+                             LEFT JOIN department on employee.department_id = department.id
+                             LEFT JOIN employee manager on employee.manager_id = manager.id;`, 
         function (err,rows) {
           if (err) throw err;
           console.table(rows);
@@ -167,8 +176,8 @@ showDepartments = () => {
                 type: 'input', 
                 name: 'addDepartment', 
                 message: 'What department would you like to add?', 
-                validate: (addDepartment) => {
-                    if (addDepartment) {
+                validate: (addADepartment) => {
+                    if (addADepartment) {
                         return true; 
                     } else {
                         console.log('Please enter a valid department name');
@@ -177,16 +186,16 @@ showDepartments = () => {
                 }
             }
         ]).then(answer =>{
-            connection.query(`INSERT INTO department (name) VALUES ('${answer.addDepartment}')`),
+            connection.query(`INSERT INTO department (name) VALUES (?)`, answer.addDepartment,
             function (err,rows) {
-                if (err) throw err;  
-            }  
-            console.table(rows);
-            console.log(`Added ${answer.addDepartment} to Deparment database.`);
+                if (err) throw err;   
+                console.table(rows);
+                console.log(`Added ${answer.addDepartment} to Deparment database.`);
+            })
          showDepartments()
         })
     };
-
+      
 //come back to this - you have a syntax error 
     addRole = () => {
         console.log('....Add Role....');
@@ -195,8 +204,8 @@ showDepartments = () => {
                 type: 'input', 
                 name: 'addRole', 
                 message: 'What role would you like to add?', 
-                validate: (addRole) => {
-                    if (addRole) {
+                validate: (addARole) => {
+                    if (addARole) {
                         return true; 
                     } else {
                         console.log('Please enter a valid role.');
@@ -206,11 +215,11 @@ showDepartments = () => {
             },
             {
                 type: 'input', 
-                name: 'salary', 
+                name: 'roleSalary', 
                 default: 50000, 
                 message: 'What is the salary for this role?', 
-                validate: (salary) => {
-                    if (salary) {
+                validate: (salaryAdd) => {
+                    if (salaryAdd) {
                         return true; 
                     } else {
                         console.log('Please enter a valid salary.');
@@ -220,11 +229,11 @@ showDepartments = () => {
             },
             {
                 type: 'input', 
-                name: 'departmentID', 
+                name: 'roleDepartmentID', 
                 default: 1, 
                 message: 'What is the department ID for this role?', 
-                validate: (departmentID) => {
-                    if (departmentID) {
+                validate: (departmentIDAdd) => {
+                    if (departmentIDAdd) {
                         return true; 
                     } else {
                         console.log('Please enter a valid role.');
@@ -233,15 +242,15 @@ showDepartments = () => {
                 }
             }
         ]).then(answer =>{
-            const roleParameters = [answer.role, answer.salary, answer.departmentID]
-            
-            connection.query(`INSERT INTO role (title, salary, department_id) VALUES (${answer.addRole},${answer.salary},${answer.departmentID}) `),
+            console.log(answer)
+            connection.promise().query(`INSERT INTO role (title, salary, department_id) VALUES (?,?,?)`, [answer.addRole, answer.roleSalary, answer.roleDepartmentID],
             function (err,rows) {
                 if (err) throw err;
                  console.table(rows)
                  console.log(`Added ${answer.addRole} to role database.`)
-                 showRoles()
-            }  
+            }).then( ()=>{
+            showRoles()
+        })
         })
     };
 
@@ -260,7 +269,7 @@ showDepartments = () => {
         //     }}
            },
            { type: 'input',
-           name: 'first_last',
+           name: 'last_name',
            message: 'What is the last name of the employee?',
         //    validate: (addLastName) => {
         //     if (addLastName) {
@@ -271,12 +280,12 @@ showDepartments = () => {
         //     }}
            },
            { type: 'list',
-           name: 'first_last',
+           name: 'role',
            message: `What is the employee's role?`,
            choices: roles, 
            },
            { type: 'list',
-           name: 'first_last',
+           name: 'manager',
            message: `Who is the employee's manager?`,
            choices: managers, 
            },
@@ -315,9 +324,7 @@ showDepartments = () => {
 
     endApplication = () => {
         console.log('===========================');
-        // console.log('........Thank You .........')
-        // console.log('===========================')
-        // console.log(' Powered by Cinthia Pruitt')
+      
     };
     
 
