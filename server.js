@@ -8,26 +8,26 @@ const inquirer = require('inquirer');
 //import internal connection 
 //const connection = require('./db/connection');
 
+
 //import console.table
 const cTable = require('console.table'); 
+const dbAccess = require('./db/dbaccess');
 
+// const connection = mysql.createConnection({
+//     host: '127.0.0.1',
+//     port: 3306, 
+//     user: 'root',
+//     database: 'employee_db',
+//     password: 'Lily_ivy' 
+// });
 
-const connection = mysql.createConnection({
-    host: '127.0.0.1',
-    port: 3306, 
-    user: 'root',
-    database: 'employee_db',
-    password: 'Lily_ivy' 
-});
-
-//Connection ID
-connection.connect((err)=>{
-    if (err) {
-        console.log(err)
-        console.log('Something went wrong.')
-    } welcomeMessage();
-});
-
+// //Connection ID
+// connection.connect((err)=>{
+//     if (err) {
+//         console.log(err)
+//         console.log('Something went wrong.')
+//     } welcomeMessage();
+// });
 
 const welcomeMessage = () => {
     console.log('=================================')
@@ -43,21 +43,15 @@ const startApp = () => {
             name:'choices', 
             message:'Welcome! What would you like to initiate?',
             choices:[
-                'View all departments',
-                'View all roles',
-                'View all employees',
-                'View all employees by department',
-                'Add a department',
-                'Add a role',
+                'View all departments', 
+                'View all roles', 
+                'View all employees', 
+                'View all employees by department', 
+                'Add a department', 
+                'Add a role', 
                 'Add an Employee', 
                 'Update an employee role',
-                'Update an employee manager', 
-                'Delete a department',
-                'Delete a role', 
-                'Delete an employee',
-                'View department budgets',
                 'Nothing. Maybe later.'
-
             ]
         }])
      .then((answers)=>{
@@ -75,9 +69,6 @@ const startApp = () => {
         else if (choices === 'View all employees by department'){
             showEmployeeDepartment();  
         }
-        else if (choices === 'View department budgets'){
-            deleteEmployee(); 
-        }
         else if (choices === 'Add a department'){
             addDepartment(); 
         }
@@ -89,19 +80,6 @@ const startApp = () => {
         }
         else if (choices === 'Update an employee role'){
             updateEmployee(); 
-        }
-        else if (choices === 'Update an employee manager'){
-            updateManager(); 
-        }
-        else if (choices === 'Delete a department'){ 
-            deleteDepartment(); 
-        }
-        else if (choices === 'Delete a role'){
-          
-            deleteRole(); 
-        }
-        else if (choices === 'Delete an employee'){
-            viewBudget();
         }
         else {
             endApplication();
@@ -143,25 +121,39 @@ showDepartments = () => {
                             employee.first_name,
                              employee.last_name,
                              role.title,
-                             department.name AS department,
                              role.salary,
-                             CONCAT(manager.first_name, ' ', manager.last_name) AS manager,
-                             FROM employee
+                             department.name AS department,
+                             CONCAT(manager.first_name, ' ', manager.last_name) AS manager
+                             
+                             FROM employee 
                              LEFT JOIN role on employee.role_id = role.id
-                             LEFT JOIN department on employee.department_id = department.id
-                             LEFT JOIN employee manager on employee.manager_id = manager.id;`, 
+                             LEFT JOIN department on role.department_id = department.id
+                             LEFT JOIN employee manager on employee.manager_id = manager.id;
+                             `,
+
         function (err,rows) {
           if (err) throw err;
           console.table(rows);
-        //restarting prompt from user
+        
+      //  restarting prompt from user
         startApp(); 
-        });
+        // dbAccess.fetchAllEmployees()
+        // .then(([rows]) => {
+        //  let employees = rows;
+        //  console.log("\n");
+        //  console.table(employees);
+    })
+    .then(() => startApp());
+        // });
     };
 
     //come back to this
     showEmployeeDepartment = () => {
-        console.log('...Showing all Employees...');
-        connection.query(`SELECT employee.first_name, employee.last_name AS employee FROM employee`, 
+        console.log('...Showing all Employees By Department...');
+        connection.query(`SELECT employee.first_name, employee.last_name FROM employee
+                         INNER JOIN department ON employee.department_id = department.id
+
+        `, 
         function (err,rows) {
           if (err) throw err;
           console.table(rows);
@@ -298,27 +290,7 @@ showDepartments = () => {
         console.log('...');
     };
 
-    updateManager = () => {
-        console.log('...');
-    };
-
     showEmployeeDepartment = () => {
-        console.log('...');
-    };
-
-    deleteDepartment = () => {
-        console.log('...');
-    };
-
-    deleteRole = () => {
-        console.log('...');
-    };
-
-    deleteEmployee = () => {
-        console.log('...');
-    };
-
-    viewBudget = () => {
         console.log('...');
     };
 
@@ -327,22 +299,4 @@ showDepartments = () => {
       
     };
     
-
-// // simple query
-// connection.query(
-//     'SELECT * FROM `department`',
-//     function(err, results) {
-//       console.log(results); // results contains rows returned by server
-//       //console.log(fields); // fields contains extra meta data about results, if available
-//     }
-//   );
-  
-
-//       console.log(`
-//         ===========================================
-
-//         Successfully managed employees to database!!
-
-//         ============================================
-
-  //'Cin'@'localhost' IDENTIFIED BY 'admin';
+    welcomeMessage();
